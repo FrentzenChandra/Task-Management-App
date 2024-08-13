@@ -3,13 +3,22 @@ package main
 import (
 	"log"
 	"tusk/config"
+	"tusk/controllers"
 	"tusk/models"
 
 	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
+func UserRouterSetup(router *gin.Engine, db *gorm.DB) {
+	userController := controllers.NewUserController(db)
+
+	router.POST("/users/login", userController.Login)
+}
+
 func main() {
+
 	//Memangil function konek database dari folder/package tusk/config
 	db := config.DatabaseConnection()
 
@@ -17,13 +26,6 @@ func main() {
 	err := db.AutoMigrate(&models.User{}, &models.Task{})
 	if err != nil {
 		log.Println(color.RedString("Gagal Melakukan Migrate : " + err.Error()))
-	}
-
-	// Membuat akun owner dengan function yang ada pada package tusk/models
-	err = config.CreateOwnerAccount(db)
-
-	if err != nil {
-		log.Println(color.RedString("Gagal Membuat Akun Owner : " + err.Error()) )
 	}
 
 	// Berguna untuk menginisiasi router dengan gin
@@ -38,6 +40,8 @@ func main() {
 			"message": "pong",
 		})
 	})
+
+	UserRouterSetup(router , db)
 
 	// ini berguna jika kita mengakses 192.168.18.5:9090/attachments memiliki isi yang sama dengan
 	// ./attachemts yang dimana berada pada folder kita sekarang
