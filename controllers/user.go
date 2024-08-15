@@ -3,6 +3,7 @@ package controllers
 import (
 	"log"
 	"net/http"
+	"time"
 	"tusk/models"
 
 	"github.com/fatih/color"
@@ -61,4 +62,95 @@ func (u *UserController) Login(c *gin.Context) {
 
 	// kembalikan response data user dan status kode berjalan dengan lancar
 	c.JSON(http.StatusOK, user)
+}
+
+func (u *UserController) CreateAccount(c *gin.Context) {
+	var user models.User
+
+	// mengisi inputan user ke dalam variabel json
+	if err := c.ShouldBindBodyWithJSON(&user); err != nil {
+		log.Println(color.RedString("Error When Marshall Json Body : " + err.Error()))
+		c.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	// logika pengecekan apakah sebuah user memiliki email yang sama
+	isEmailExist := u.db.Where("email = ?", user.Email).First(&user).RowsAffected != 0
+
+	if isEmailExist {
+		log.Println("This Email Already Have Account : ")
+		c.JSON(http.StatusInternalServerError, gin.H{"Error": "This Email Already Have an account "})
+		return
+	}
+
+	// Mengubah password menjadi lebih kompleks dengan cara hashing
+	hashedPass, err := bcrypt.GenerateFromPassword([]byte(user.Password), 16)
+
+	if err != nil {
+		log.Println(color.RedString("Failed When Generating hashed Password : " + err.Error()))
+		c.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	// masukkan hasil hashed password
+	user.Password = string(hashedPass)
+	// Membuat sebuah role Akun
+	user.Role = "Employee"
+
+	// Memasukan record ke database
+	if err := u.db.Create(&user).Error; err != nil {
+		log.Println(color.RedString("Error when Creating an Account : " + err.Error()))
+		c.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	//Berikan Response Jika berhasil dilakukan
+	c.JSON(http.StatusOK, user)
+}
+
+func (u *UserController) DeleteAccount(c *gin.Context) {
+	// mengambil nilai dari id di url /users/:id dia akan mengambil nilai dari
+	// :id
+	id := c.Param("id")
+	// digunakan untuk mengecek apakah akun dengan id sekian ada?
+	err := u.db.Where("id = ?", id).Take(&models.User{}).Error
+
+	if err != nil {
+		log.Println(color.RedString("Account Didnt Exist"))
+		c.JSON(http.StatusNotFound, gin.H{"Error": "Account Didnt Exist"})
+		return
+	}
+
+	// Delete Account dengan id sekian
+	if err := u.db.Delete(&models.User{}, id).Error; err != nil {
+		log.Println(color.RedString("Error When Deleteing Account : " + err.Error()))
+		c.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	// Berikan Response Berhasil jika selesaip
+	c.JSON(http.StatusOK, "Completed Delete Account")
+}
+
+func (u *UserController) GetEmployee(c *gin.Context) {
+	// Logika dari mengambil value nya itu adalah array of struct
+	// jadi di dalam array ada sebuah struct models.User maka dari itu
+	// kita membuat sebuah variabel array models.User karna kita ingin mengambil
+	// lebih dari satu akun employee
+	var users []models.User
+
+	// Mengambil Semua akun yang role nya employee dan belum ada catatan deleted_at
+	// namun kita hanya akan mengambil nama dan juga id dari akun tersebut
+	// time.Time{} == null / nil
+	err := u.db.Select("id,name").
+		Where(models.User{Role: "Employee", DeletedAt: time.Time{}}).
+		Find(&users).Error
+
+	if err != nil {
+		log.Println(color.RedString("Error When GET all employee : " + err.Error()))
+		c.JSON(http.StatusNotFound, gin.H{"Error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, users)
 }

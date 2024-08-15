@@ -64,7 +64,7 @@ func CreateOwnerAccount(db *gorm.DB) error {
 		Email:     "frentzenpp@gmail.com",
 		Password:  string(bytes),
 		CreatedAt: time.Now(),
-		UpdateAt:  time.Now(),
+		UpdatedAt:  time.Now(),
 	}
 
 	//Cek Logika Terlebih dahulu Jika ada sebuah User dengan email yang sama maka

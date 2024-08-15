@@ -7,6 +7,7 @@ require gorm.io/driver/mysql v1.5.7
 require (
 	github.com/fatih/color v1.17.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/thanhpk/randstr v1.0.6 // indirect
 )
 
 require (

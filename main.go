@@ -14,7 +14,31 @@ import (
 func UserRouterSetup(router *gin.Engine, db *gorm.DB) {
 	userController := controllers.NewUserController(db)
 
+	router.GET("/users/Employee", userController.GetEmployee)
 	router.POST("/users/login", userController.Login)
+	router.POST("/users", userController.CreateAccount)
+	// Perhatikan router.Delete , router.Post dll itu adalah method dari routing
+	router.DELETE("/users/:id", userController.DeleteAccount)
+}
+
+func TaskRouterSetup(router *gin.Engine, db *gorm.DB) {
+	taskController := controllers.NewTaskController(db)
+
+	router.POST("/tasks", taskController.Create)
+
+	router.DELETE("/tasks/:id", taskController.Delete)
+
+	router.PATCH("/tasks/:id/submit", taskController.SubmitTask)
+	router.PATCH("/tasks/:id/reject", taskController.RejectTask)
+	router.PATCH("/tasks/:id/fix", taskController.Fix)
+	router.PATCH("/tasks/:id/approvep", taskController.Approve)
+
+	router.GET("/tasks/:id", taskController.FindById)
+	router.GET("/tasks/review/asc", taskController.NeedToBeReview)
+	router.GET("/tasks/progress/:userId", taskController.ProgressTasks)
+	router.GET("/tasks/stat/:userId", taskController.Statistic)
+	router.GET("/tasks/user/:userId/:status", taskController.FindByUserAndStatus)
+
 }
 
 func main() {
@@ -41,7 +65,8 @@ func main() {
 		})
 	})
 
-	UserRouterSetup(router , db)
+	UserRouterSetup(router, db)
+	TaskRouterSetup(router, db)
 
 	// ini berguna jika kita mengakses 192.168.18.5:9090/attachments memiliki isi yang sama dengan
 	// ./attachemts yang dimana berada pada folder kita sekarang

@@ -16,7 +16,8 @@ type Task struct {
 	RejectedDate string    `json:"rejectedDate" gorm:"type:varchar(50)"`
 	ApprovedDate string    `json:"approvedDate" gorm:"type:varchar(50)"`
 	Attachment   string    `json:"attachment" gorm:"type:varchar(255)"`
-	CreatedAt    time.Time `json:"createdAt" `
-	UpdatedAt    time.Time `json:"updatedAt" `
+	CreatedAt    time.Time `json:"createdAt" gorm:"type:timestamp; default:CURRENT_TIMESTAMP"`
+	UpdatedAt    time.Time `json:"updatedAt" gorm:"type:timestamp; default:NULL"`
+	DeletedAt    time.Time `json:"deletedAt" gorm:"type:timestamp; default:NULL"`
 	User         User      `json:"user,omitempty" gorm:"foreignKey:UserId"` // Punya :
 }

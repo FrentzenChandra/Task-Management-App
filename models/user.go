@@ -15,9 +15,10 @@ type User struct {
 	Role      string    `json:"role" gorm:"type:varchar(10)"`
 	Name      string    `json:"name" gorm:"type:varchar(255)"`
 	Email     string    `json:"email" gorm:"type:varchar(50); UNIQUE"`
-	Password  string    `json:"password" gorm:"type:varchar(255)"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdateAt  time.Time `json:"updated_at"`
+	Password  string    `json:"password,omitempty" gorm:"type:varchar(255)"`
+	CreatedAt time.Time `json:"created_at" gorm:"type:timestamp ; default:CURRENT_TIMESTAMP"`
+	UpdatedAt time.Time `json:"updatedAt" gorm:"type:timestamp; default:NULL"`
+	DeletedAt time.Time `json:"deletedAt" gorm:"type:timestamp; default:NULL"`
 	// Tujuan Cascade ini adalah jika kita menghapus sebuah user maka task yang ada
 	// pada user yang ingin dihapus juga ikutan terhapus
 	Tasks []Task `json:"tasks,omitempty" gorm:"constraint:OnDelete:CASCADE"`
