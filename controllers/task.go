@@ -324,6 +324,9 @@ func (t *taskController) Statistic(c *gin.Context) {
 	userId := c.Param("userId")
 	stat := []map[string]interface{}{}
 
+	// Mengambil berapa banyak data yang memiliki nilai yang sama
+	// dan total dari banyak data tersebut dimaukkan ke dalam variabel
+	// total  dan di group bedasarkan status
 	err := t.db.Model(models.Task{}).
 		Select("status, count(status) as total").
 		Where("user_id=?", userId).
@@ -346,8 +349,7 @@ func (t *taskController) FindByUserAndStatus(c *gin.Context) {
 	userId := c.Param("userId")
 	Status := c.Param("status")
 
-	//Mengambil data task bedasarkan
-	// status yang bukan queue dan userid yang sama  atau  revisi bukan 0 dan userid yang sama
+	// Mengambil data bedasrakan status dan user id sekian 
 	err := t.db.Preload("User").
 		Where("(status = ? AND user_id=?)",
 			Status,

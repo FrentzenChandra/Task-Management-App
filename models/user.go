@@ -11,7 +11,7 @@ type User struct {
 	// auto increment berguna untuk otomatis ada isi
 	// json disini berguna untuk nanti response atau pun mengisi data
 	// dengan tipe data struct ini json akan mengisi data id dengan json id
-	Id        int       `json:"id" gorm:"type:int;primaryKey; pautoIncrement"`
+	Id        int       `json:"id" gorm:"type:int;primaryKey; autoIncrement"`
 	Role      string    `json:"role" gorm:"type:varchar(10)"`
 	Name      string    `json:"name" gorm:"type:varchar(255)"`
 	Email     string    `json:"email" gorm:"type:varchar(50); UNIQUE"`
