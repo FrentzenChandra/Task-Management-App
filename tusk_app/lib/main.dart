@@ -7,6 +7,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:tusk_app/common/app_color.dart';
 import 'package:tusk_app/common/app_route.dart';
 import 'package:tusk_app/data/models/user.dart';
+import 'package:tusk_app/presentation/bloc/login/login_cubit.dart';
+import 'package:tusk_app/presentation/pages/login_pages.dart';
 import 'package:tusk_app/presentation/bloc/user/user_cubit.dart';
 
 void main() {
@@ -30,6 +32,7 @@ class MainApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => UserCubit()),
+        BlocProvider(create: (context) => LoginCubit()),
       ],
       child: MaterialApp(
         // Untuk menghilangkan mode Banner di debug
@@ -73,7 +76,7 @@ class MainApp extends StatelessWidget {
                 builder: (context, snapshot) {
                   // melihat apakah data ada di snapshot
                   // jika tidak ada kemalikan ke page login
-                  if (snapshot.data == null) return const Scaffold(); // login
+                  if (snapshot.data == null) return const loginPage(); // login
                   // mengkonvert json ke yang ada di snapshot.data
                   // lalu di masukan ke variabel user yang memiliki tipe data User
                   User user = User.fromJson(Map.from(snapshot.data!));
@@ -95,7 +98,7 @@ class MainApp extends StatelessWidget {
           AppRoute.addTask: (context) => const Scaffold(),
           AppRoute.detailTask: (context) => const Scaffold(),
           AppRoute.listTask: (context) => const Scaffold(),
-          AppRoute.login: (context) => const Scaffold(),
+          AppRoute.login: (context) => const loginPage(),
           AppRoute.monitorEmployee: (context) => const Scaffold(),
           AppRoute.profile: (context) => const Scaffold(),
         },
