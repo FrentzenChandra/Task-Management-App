@@ -50,7 +50,7 @@ class UserSource {
     }
   }
 
-  static Future<User?> AddEmployee(
+  static Future<User?> addEmployee(
       String name, String email, String password) async {
     try {
       final response = await http.post(Uri.parse('$_baseURL'),
@@ -62,7 +62,7 @@ class UserSource {
 
       DMethod.logResponse(response);
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 200) {
         Map resBody = jsonDecode(response.body);
         return User.fromJson(Map.from(resBody));
       }
@@ -89,7 +89,7 @@ class UserSource {
     }
   }
 
-  static Future<List<User>?> GetEmployee() async {
+  static Future<List<User>?> getEmployee() async {
     try {
       // melakukan request api dengan method get menampung response nya
       final response = await http.get(Uri.parse('/Employee'));
@@ -105,17 +105,17 @@ class UserSource {
         List resBody = jsonDecode(response.body);
         // kemudian
         List<User> users =
-          //kemudian yang ini contoh nya itu
-          // e akan melakukan cek isi array 1 per satu
-          // misal e array pertama isi nya user{"name" : "toto" }
-          // lalu masukan e tersebut ke dalam bentuk user
-          // begitu juga dengan yang selanjut nya ke 2 , 3 , 4 sampai habis
-          // lalu masukan satu per satu ke dalam map dan setelah itu dibuat lah list of user
+            //kemudian yang ini contoh nya itu
+            // e akan melakukan cek isi array 1 per satu
+            // misal e array pertama isi nya user{"name" : "toto" }
+            // lalu masukan e tersebut ke dalam bentuk user
+            // begitu juga dengan yang selanjut nya ke 2 , 3 , 4 sampai habis
+            // lalu masukan satu per satu ke dalam map dan setelah itu dibuat lah list of user
             resBody.map((e) => User.fromJson(Map.from(e))).toList();
         return users;
       }
 
-
+      return null;
     } catch (e) {
       DMethod.log(e.toString(), colorCode: 1);
       return null;
