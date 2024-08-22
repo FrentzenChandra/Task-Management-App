@@ -11,7 +11,7 @@ class TaskSource {
   static const _baseURL = '${URLs.host}/tasks';
 
   static Future<bool> add(
-      String title, String desc, DateTime dueDate, int userId) async {
+      String title, String desc, String dueDate, int userId) async {
     try {
       // melakukan tembak api dengan body seperti ini
       final response = await http.post(Uri.parse(_baseURL),
@@ -47,8 +47,7 @@ class TaskSource {
     }
   }
 
-  static Future<bool> submit(
-      DateTime submitDate, int userId, XFile attachment) async {
+  static Future<bool> submit(int userId, XFile attachment) async {
     try {
       // membuat sebuah request dengan format multipartRequest
       // karna ada memiliki gambar di dalamnya
@@ -213,7 +212,7 @@ class TaskSource {
         for (String status in listStatus) {
           List resBody = jsonDecode(response.body);
           // Mengambil mencari nilai jika ada stat yang tidak ada dalam
-          // map maka diberikan status dengan nilai null 
+          // map maka diberikan status dengan nilai null
           Map? found = resBody.where((e) => e['status'] == status).firstOrNull;
           // mengisi stat yang memiliki status yang berbeda setiap for of
           // masukan nilai total nya jika null maka 0
@@ -246,6 +245,26 @@ class TaskSource {
     } catch (e) {
       DMethod.log(e.toString(), colorCode: 1);
       return null;
+    }
+  }
+
+
+  static Future<bool> fixToQueue(int id, int revision) async { // task untuk menganti menjadi queue
+    try {
+      final response = await http.patch
+      ( //url fix
+        Uri.parse('$_baseURL/$id/fix'),
+        body: {
+          // menamahkan revision
+          "revision": '$revision',
+        },
+      );
+      DMethod.logResponse(response);
+
+      return response.statusCode == 200;
+    } catch (e) {
+      DMethod.log(e.toString(), colorCode: 1);
+      return false;
     }
   }
 }

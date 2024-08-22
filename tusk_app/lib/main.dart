@@ -7,9 +7,23 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:tusk_app/common/app_color.dart';
 import 'package:tusk_app/common/app_route.dart';
 import 'package:tusk_app/data/models/user.dart';
+import 'package:tusk_app/presentation/bloc/detail_task/detail_task_cubit.dart';
+import 'package:tusk_app/presentation/bloc/employee/employee_bloc.dart';
+import 'package:tusk_app/presentation/bloc/list_task/list_task_bloc.dart';
 import 'package:tusk_app/presentation/bloc/login/login_cubit.dart';
-import 'package:tusk_app/presentation/pages/login_pages.dart';
+import 'package:tusk_app/presentation/bloc/need_review/need_review_bloc.dart';
+import 'package:tusk_app/presentation/bloc/progress_task/progress_task_bloc.dart';
+import 'package:tusk_app/presentation/bloc/stat_employee/stat_employee_cubit.dart';
+import 'package:tusk_app/presentation/pages/add_employee_page.dart';
+import 'package:tusk_app/presentation/pages/add_task_page.dart';
+import 'package:tusk_app/presentation/pages/detail_task_page.dart';
+import 'package:tusk_app/presentation/pages/home_admin_page.dart';
+import 'package:tusk_app/presentation/pages/home_employee_page.dart';
+import 'package:tusk_app/presentation/pages/list_task_page.dart';
+import 'package:tusk_app/presentation/pages/login_page.dart';
 import 'package:tusk_app/presentation/bloc/user/user_cubit.dart';
+import 'package:tusk_app/presentation/pages/monitor_employee_page.dart';
+import 'package:tusk_app/presentation/pages/profile_page.dart';
 
 void main() {
   // Mengasign plugin widgetFlutterBinding
@@ -33,6 +47,12 @@ class MainApp extends StatelessWidget {
       providers: [
         BlocProvider(create: (context) => UserCubit()),
         BlocProvider(create: (context) => LoginCubit()),
+        BlocProvider(create: (context) => StatEmployeeCubit()),
+        BlocProvider(create: (context) => DetailTaskCubit()),
+        BlocProvider(create: (context) => ProgressTaskBloc()),
+        BlocProvider(create: (context) => NeedReviewBloc()),
+        BlocProvider(create: (context) => EmployeeBloc()),
+        BlocProvider(create: (context) => ListTaskBloc()),
       ],
       child: MaterialApp(
         // Untuk menghilangkan mode Banner di debug
@@ -88,19 +108,49 @@ class MainApp extends StatelessWidget {
                   // scaffold nanti akan diubah untuk mengkondisikan
                   // tergantu role yang login
                   if (user.role == "Admin")
-                    return const Scaffold(); // homepage admin
-                  return const Scaffold(); // homepage Employee
+                    return const HomeAdminPage(); // homepage admin
+                  return const HomeEmployePage(); // homepage Employee
                 });
           }),
           // Memuat routing yang nanti function return nya (scaffold) akan diganti
           // oleh function yang digunakan pada routing masing masing
-          AppRoute.addEmployee: (context) => const Scaffold(),
-          AppRoute.addTask: (context) => const Scaffold(),
-          AppRoute.detailTask: (context) => const Scaffold(),
-          AppRoute.listTask: (context) => const Scaffold(),
+          AppRoute.addEmployee: (context) => const AddEmployeePage(),
+          AppRoute.addTask: (context) {
+            User employee = ModalRoute.of(context)!.settings.arguments as User;
+            return AddTaskPage(employee: employee);
+          },
+          // detailtask
+          AppRoute.detailTask: (context) {
+            // akan diberikan argument id untuk digunakan pada detailtask
+            int id = ModalRoute.of(context)!.settings.arguments as int;
+            return BlocProvider(
+              // lalu context harus kita alihkan ke detailTaskCubit
+              create: (context) => DetailTaskCubit(),
+              // dan juga kita masukkan design kita beserta data id 
+              child: DetailTaskPage(id: id),
+            );
+          },
+          AppRoute.listTask: (context) {
+            Map data = ModalRoute.of(context)!.settings.arguments as Map;
+            return BlocProvider(
+              create: (context) => ListTaskBloc(),
+              child: ListTaskPage(
+                status: data['status'],
+                employee: data['employee'],
+              ),
+            );
+          },
           AppRoute.login: (context) => const loginPage(),
-          AppRoute.monitorEmployee: (context) => const Scaffold(),
-          AppRoute.profile: (context) => const Scaffold(),
+          AppRoute.monitorEmployee: (context) {
+            // kita membuat seperti ini dikarenakan dalam monitorEmployee itu
+            // memerlukan / required argument id yang dalam hal ini kita menyetting
+            // untuk hasil argument yang dieberikan di masukan ke dalam variabel user
+            // yang dimana akan di teruskan ke dalam MonitorEmployeePage
+            // untuk context Tersebut berguna untuk melihat page kita berada sebelum page MonitorEmployeePage
+            User employee = ModalRoute.of(context)!.settings.arguments as User;
+            return MonitorEmployeePage(employee: employee);
+          },
+          AppRoute.profile: (context) => const ProfilePage(),
         },
       ),
     );

@@ -50,7 +50,7 @@ class UserSource {
     }
   }
 
-  static Future<User?> addEmployee(
+  static Future<(bool, String)> addEmployee(
       String name, String email, String password) async {
     try {
       final response = await http.post(Uri.parse('$_baseURL'),
@@ -64,11 +64,15 @@ class UserSource {
 
       if (response.statusCode == 200) {
         Map resBody = jsonDecode(response.body);
-        return User.fromJson(Map.from(resBody));
+        return (true, "Success Add New Employee");
+      } else if (response.statusCode == 500) {
+        return (false, "Email Already Exist");
       }
+
+      return (false, "Failed Add New Employee");
     } catch (e) {
       DMethod.log(e.toString(), colorCode: 1);
-      return null;
+      return (false, "Something went wrong");
     }
   }
 
@@ -92,7 +96,7 @@ class UserSource {
   static Future<List<User>?> getEmployee() async {
     try {
       // melakukan request api dengan method get menampung response nya
-      final response = await http.get(Uri.parse('/Employee'));
+      final response = await http.get(Uri.parse('$_baseURL/Employee'));
 
       // logging
       DMethod.logResponse(response);
@@ -105,13 +109,14 @@ class UserSource {
         List resBody = jsonDecode(response.body);
         // kemudian
         List<User> users =
-            //kemudian yang ini contoh nya itu
-            // e akan melakukan cek isi array 1 per satu
-            // misal e array pertama isi nya user{"name" : "toto" }
-            // lalu masukan e tersebut ke dalam bentuk user
-            // begitu juga dengan yang selanjut nya ke 2 , 3 , 4 sampai habis
-            // lalu masukan satu per satu ke dalam map dan setelah itu dibuat lah list of user
             resBody.map((e) => User.fromJson(Map.from(e))).toList();
+        //kemudian yang ini contoh nya itu
+        // e akan melakukan cek isi array 1 per satu
+        // misal e array pertama isi nya user{"name" : "toto" }
+        // lalu masukan e tersebut ke dalam bentuk user
+        // begitu juga dengan yang selanjut nya ke 2 , 3 , 4 sampai habis
+        // lalu masukan satu per satu ke dalam map dan setelah itu dibuat lah list of user
+
         return users;
       }
 

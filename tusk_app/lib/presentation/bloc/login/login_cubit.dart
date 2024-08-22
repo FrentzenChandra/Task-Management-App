@@ -15,13 +15,13 @@ class LoginCubit extends Cubit<LoginState> {
     User? result = await UserSource.login(email, password);
 
     if (result == null) {
-      // memberikan pemberitahuan jika Gagal
+      // memberikan emit yang berisi null dengan state gagal jika tidak ada isi request
       emit(LoginState(null, RequestStatus.failed));
     } else {
       // menyimpan session dari hasil tembaik api menggunakan User source
       // lalu dari json di assign ke DSession
       DSession.setUser(result.toJson());
-      // memberikan pemberitahuan jika berhasil
+      // menghasilkan emit yang berisi data dan juga status berhasil
       emit(LoginState(result, RequestStatus.success));
     }
   }
